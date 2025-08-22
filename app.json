@@ -26,11 +26,6 @@
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_BACKGROUND_LOCATION",
         "android.permission.FOREGROUND_SERVICE",
-        "android.permission.FOREGROUND_SERVICE_LOCATION",
-        "android.permission.ACCESS_COARSE_LOCATION",
-        "android.permission.ACCESS_FINE_LOCATION",
-        "android.permission.ACCESS_BACKGROUND_LOCATION",
-        "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_LOCATION"
       ],
       "package": "com.jakbrn.manhunt"
@@ -56,12 +51,6 @@
         {
           "isIosBackgroundLocationEnabled": true,
           "isAndroidBackgroundLocationEnabled": true
-        }
-      ],
-      [
-        "react-native-maps",
-        {
-          "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY"
         }
       ]
     ],
