@@ -26,10 +26,10 @@ export default function SignIn() {
   return (
     <SafeAreaView className="flex-1">
       {!waitingForOtp ? (
-        <View className="p-4 flex-1">
+        <View className="p-4 flex-1 flex flex-col justify-center">
           <View className="flex flex-col items-center mb-6 gap-2">
-            <Text className="text-2xl font-bold text-primary">Welcome</Text>
-            <Text className="text-primary">Choose your login method</Text>
+            <Text className="text-3xl font-bold text-primary">Welcome</Text>
+            <Text className="text-foreground">Choose your login method</Text>
           </View>
 
           <View className="w-full flex flex-col gap-3">
@@ -52,17 +52,18 @@ export default function SignIn() {
             <Button
               className="flex-row items-center justify-center gap-2"
               onPress={() => supabase.auth.signInAnonymously()}
+              variant="secondary"
             >
               <Text className="font-medium">Guest</Text>
             </Button>
           </View>
-          <Text className="text-center text-primary mt-5 mb-2 px-8 flex-[1]">
+          <Text className="text-center text-primary mt-5 mb-2 px-8">
             By continuing, you agree to our <Text className="text-primary underline">Terms of Service</Text> and{" "}
             <Text className="text-primary underline">Privacy Policy</Text>.
           </Text>
         </View>
       ) : (
-        <View className="p-4 flex-1">
+        <View className="p-4 flex-1 flex flex-col justify-center">
           <View className="flex flex-col items-center mb-6 gap-2">
             <Text className="text-2xl font-bold text-primary">Enter the code</Text>
             <Text className="text-primary">We sent a code to {email}</Text>
@@ -74,6 +75,7 @@ export default function SignIn() {
               onChangeText={setOtp}
               autoCapitalize="none"
               autoComplete="off"
+              keyboardType="number-pad"
             />
             <Button onPress={() => supabase.auth.verifyOtp({ email, token: otp, type: "email" })} disabled={loading}>
               <Text className="font-medium">Verify</Text>
