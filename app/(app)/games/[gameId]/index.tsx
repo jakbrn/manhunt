@@ -122,7 +122,7 @@ export default function GameScreen() {
             </TabsList>
             <TabsContent value="players" className="flex-1 h-0">
               <FlatList
-                data={Array(10).fill(players).flat()}
+                data={players}
                 keyExtractor={(item, index) => `${item.id}-${index}`}
                 renderItem={({ item }) => <PlayerEntry player={item} mapView={mapView} />}
                 ListEmptyComponent={

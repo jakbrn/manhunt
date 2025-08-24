@@ -141,7 +141,7 @@ export default function GameDetails() {
       <View className="gap-4 flex-row mt-4">
         {players?.some((player) => player.user_id === session?.user.id) ? (
           <Button variant="destructive" size="lg" className="flex-1 flex-row gap-2" onPress={() => leaveGame()}>
-            <LogOutIcon size={18} className="text-secondary" />
+            <LogOutIcon size={18} className="text-white" />
             <Text className="text-base">Leave Game</Text>
           </Button>
         ) : (

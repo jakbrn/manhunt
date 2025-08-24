@@ -7,7 +7,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import useGames from "@/hook/useGames";
+import useMyPlayers from "@/hook/useMyPlayers";
 import { useSession } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import * as Location from "expo-location";
@@ -72,13 +72,13 @@ if (!TaskManager.isTaskDefined("location-updater")) {
 
 export default function LocationManager() {
   const { session } = useSession();
-  const { data: games } = useGames();
+  const { data: myPlayers } = useMyPlayers();
   const [foregroundLocationStatus, requestForegroundLocationPermission] = Location.useForegroundPermissions();
   const [backgroundLocationStatus, requestBackgroundLocationPermission] = Location.useBackgroundPermissions();
   const haveLocationPermissions = foregroundLocationStatus?.granted && backgroundLocationStatus?.granted;
 
   useEffect(() => {
-    if (!session || !games || games.length === 0 || !haveLocationPermissions) return;
+    if (!session || !myPlayers || myPlayers.length === 0 || !haveLocationPermissions) return;
 
     Location.startLocationUpdatesAsync("location-updater", {
       accuracy: Location.Accuracy.High,
@@ -89,7 +89,7 @@ export default function LocationManager() {
     return () => {
       Location.stopLocationUpdatesAsync("location-updater");
     };
-  }, [games, session, haveLocationPermissions]);
+  }, [myPlayers, session, haveLocationPermissions]);
 
   return (
     <AlertDialog open={!haveLocationPermissions}>
