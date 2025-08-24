@@ -50,11 +50,10 @@ if (!TaskManager.isTaskDefined("location-updater")) {
         if (!game) continue;
 
         const position = player.position as Location.LocationObject | null;
-        if (!position) continue;
-
         const timestamp = Date.now();
         const frequency = game.frequency * 60000;
-        if (Math.floor(timestamp / frequency) <= Math.floor(position.timestamp / frequency)) continue;
+
+        if (position && Math.floor(timestamp / frequency) <= Math.floor(position.timestamp / frequency)) continue;
 
         for (const location of locations) {
           console.log("Received new location:", location, "For player:", player, " in game:", game.id);

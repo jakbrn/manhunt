@@ -1,105 +1,142 @@
+import GameDetails from "@/components/games/details";
+import PlayerEntry from "@/components/games/player";
+import PlayerMarker from "@/components/games/player-marker";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Text } from "@/components/ui/text";
 import useGame from "@/hook/useGame";
 import usePlayers from "@/hook/usePlayers";
 import { useSession } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import * as Location from "expo-location";
 import { router, Stack, useLocalSearchParams } from "expo-router";
-import { ChevronLeftIcon, SettingsIcon } from "lucide-nativewind";
-import { useEffect } from "react";
-import { SafeAreaView, Text, View } from "react-native";
-import MapView, { Marker, PROVIDER_GOOGLE } from "react-native-maps";
+import { ChevronDownIcon, ChevronLeftIcon, ChevronUpIcon, LocateIcon } from "lucide-nativewind";
+import { useEffect, useRef, useState } from "react";
+import { FlatList, SafeAreaView, StatusBar, View } from "react-native";
+import MapView, { PROVIDER_GOOGLE, Region } from "react-native-maps";
 
 export default function GameScreen() {
   const { session } = useSession();
   const { gameId } = useLocalSearchParams<{ gameId: string }>();
   const { data: players, isLoading: playersLoading } = usePlayers(parseInt(gameId));
   const { data: game, isLoading: gameLoading } = useGame(parseInt(gameId));
+  const mapView = useRef<MapView>(null);
+  const [drawer, setDrawer] = useState(false);
+  const [tab, setTab] = useState("players");
 
   useEffect(() => {
     if (playersLoading || gameLoading) return;
     if (!players?.some((player) => player.user_id === session?.user.id) && game?.owner !== session?.user.id) {
-      router.push(`/(app)`);
+      router.push(`/(app)/(tabs)`);
     }
   }, [players, playersLoading, game, gameLoading, session, router]);
 
   const me = players?.find((player) => player.user_id === session?.user.id);
 
+  function calculateInitialRegion(): Region | undefined {
+    if (!players || players.filter((p) => p.position).length === 0) return undefined;
+
+    const latitude =
+      players.reduce((sum, p) => sum + ((p.position as Location.LocationObject)?.coords.latitude || 0), 0) /
+      players.length;
+    const longitude =
+      players.reduce((sum, p) => sum + ((p.position as Location.LocationObject)?.coords.longitude || 0), 0) /
+      players.length;
+
+    return {
+      latitude,
+      longitude,
+      latitudeDelta: 0.01 * players.length,
+      longitudeDelta: 0.01 * players.length,
+    };
+  }
+
   return (
-    <View className="flex-1">
+    <>
       <Stack.Screen
         options={{
           header: () => null,
         }}
       />
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={{
-          width: "100%",
-          height: "100%",
-        }}
-      >
-        {players?.map((player) => {
-          const position = player.position as Location.LocationObject;
-
-          if (!position) return null;
-
-          if (player.user_id === session?.user.id)
-            return (
-              <Marker
-                key={player.id}
-                title="You"
-                coordinate={{
-                  latitude: position.coords.latitude,
-                  longitude: position.coords.longitude,
-                }}
-              >
-                <View className="bg-blue-500 h-5 w-5 rounded-full aspect-square items-center justify-center border border-blue-300" />
-              </Marker>
-            );
-
-          if (me?.role === "runner" && player.role === "hunter") return null;
-
-          return (
-            <Marker
-              key={player.id}
-              coordinate={{
-                latitude: position.coords.latitude || 0,
-                longitude: position.coords.longitude || 0,
-              }}
-              title={player.name}
-            >
-              <View
-                className={cn(
-                  "p-1 rounded-full aspect-square items-center justify-center border",
-                  player.role === "hunter" ? "bg-red-500 border-red-300" : "bg-green-500 border-green-300"
-                )}
-              >
-                <Text className="text-lg text-white font-bold">{player.name.slice(0, 1).toUpperCase()}</Text>
-              </View>
-            </Marker>
-          );
-        })}
-      </MapView>
-      <SafeAreaView className="absolute top-0 left-0 right-0">
-        <View className="px-4 flex-row justify-between items-center">
-          <Button variant="secondary" onPress={() => router.back()} className="aspect-square">
-            <ChevronLeftIcon size={24} className="text-primary" />
-          </Button>
-          <View className="gap-2">
+      <StatusBar barStyle="dark-content" />
+      <View className={cn("p-4 pt-safe", (tab !== "details" || !drawer) && "flex-1")}>
+        <MapView
+          provider={PROVIDER_GOOGLE}
+          ref={mapView}
+          initialRegion={calculateInitialRegion()}
+          showsCompass
+          showsUserLocation
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+          }}
+        >
+          {players?.map((player) => me && <PlayerMarker key={player.id} as={me.role} player={player} />)}
+        </MapView>
+        <Button variant="secondary" className="aspect-square rounded-full h-14 shadow" onPress={() => router.back()}>
+          <ChevronLeftIcon size={24} className="text-primary" />
+        </Button>
+        <SafeAreaView className="absolute bottom-4 right-4 gap-3">
+          {(tab !== "details" || !drawer) && (
             <Button
               variant="secondary"
-              className="aspect-square"
-              onPress={() => router.push(`/(app)/games/${gameId}/settings`)}
+              className="aspect-square rounded-full h-14 shadow"
+              onPress={() => {
+                const region = calculateInitialRegion();
+                if (region) {
+                  mapView.current?.animateToRegion(region);
+                }
+              }}
             >
-              <SettingsIcon size={20} className="text-foreground" />
+              <LocateIcon size={24} className="text-primary" />
             </Button>
-          </View>
+          )}
+          <Button
+            variant="secondary"
+            className="aspect-square rounded-full h-14 shadow"
+            onPress={() => {
+              setDrawer(!drawer);
+            }}
+          >
+            {drawer ? (
+              <ChevronDownIcon size={24} className="text-primary" />
+            ) : (
+              <ChevronUpIcon size={24} className="text-primary" />
+            )}
+          </Button>
+        </SafeAreaView>
+      </View>
+      {drawer && (
+        <View className={cn("w-full h-1/2 p-4 px-1 gap-3 bg-background", tab === "details" && "flex-1")}>
+          <Tabs value={tab} onValueChange={setTab} className="w-full h-full">
+            <TabsList className="w-full h-12">
+              <TabsTrigger value="players" className="flex-1 h-full">
+                <Text>Players</Text>
+              </TabsTrigger>
+              <TabsTrigger value="details" className="flex-1 h-full">
+                <Text>Details</Text>
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="players" className="flex-1 h-0">
+              <FlatList
+                data={Array(10).fill(players).flat()}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
+                renderItem={({ item }) => <PlayerEntry player={item} mapView={mapView} />}
+                ListEmptyComponent={
+                  <Text className="text-muted-foreground text-center text-xl font-semibold py-6">No players yet.</Text>
+                }
+                contentContainerClassName="gap-2"
+              />
+            </TabsContent>
+            <TabsContent value="details" className="flex-1 h-0">
+              <GameDetails />
+            </TabsContent>
+          </Tabs>
         </View>
-        <View className="px-6 w-full justify-between items-end gap-4">
-          <View className="gap-2"></View>
-        </View>
-      </SafeAreaView>
-    </View>
+      )}
+    </>
   );
 }
