@@ -2,9 +2,9 @@ import { useSession } from "@/lib/auth-context";
 import { router } from "expo-router";
 import { PlusIcon } from "lucide-nativewind";
 import { useState } from "react";
-import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Text } from "./ui/text";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Text } from "../ui/text";
 
 export function AddGameButton() {
   const { session } = useSession();

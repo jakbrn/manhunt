@@ -44,7 +44,7 @@ export default function JoinGameScreen() {
           header: () => {
             return (
               <SafeAreaView>
-                <View className="flex-row items-center gap-2 px-4">
+                <View className="flex-row items-center gap-2 pt-2 px-4">
                   <Button variant="ghost" size="icon" onPress={() => router.back()}>
                     <ChevronLeftIcon size={24} className="text-primary" />
                   </Button>
@@ -55,17 +55,23 @@ export default function JoinGameScreen() {
           },
         }}
       />
-      <View className="flex-col items-center gap-2 w-full">
-        <Input
-          placeholder="Game code"
-          value={gameCode}
-          onChangeText={setGameCode}
-          className="w-full"
-          autoCapitalize="none"
-        />
-        <Input placeholder="Your name" value={name} onChangeText={setName} className="w-full" />
-        <Button onPress={joinGame} disabled={loading} className="w-full mt-2">
-          <Text className="font-medium">{loading ? "Joining..." : "Join"}</Text>
+      <View className="flex-col items-center gap-2 w-full flex-1">
+        <View className="w-full flex flex-col gap-1">
+          <Text className="font-semibold ml-1">Game Code</Text>
+          <Input
+            placeholder="Enter game code"
+            value={gameCode}
+            onChangeText={setGameCode}
+            className="w-full"
+            autoCapitalize="none"
+          />
+        </View>
+        <View className="w-full flex flex-col gap-1">
+          <Text className="font-semibold ml-1">Your Name</Text>
+          <Input placeholder="Enter your name" value={name} onChangeText={setName} className="w-full" />
+        </View>
+        <Button onPress={joinGame} disabled={loading} className="w-full mt-4" size="lg">
+          <Text className="font-semibold text-base">{loading ? "Joining..." : "Join"}</Text>
         </Button>
       </View>
     </View>

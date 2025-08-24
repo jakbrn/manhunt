@@ -49,7 +49,7 @@ export default function CreateGameScreen() {
           header: () => {
             return (
               <SafeAreaView>
-                <View className="flex-row items-center gap-2 px-4">
+                <View className="flex-row items-center gap-2 pt-2 px-4">
                   <Button variant="ghost" size="icon" onPress={() => router.back()}>
                     <ChevronLeftIcon size={24} className="text-primary" />
                   </Button>
@@ -61,16 +61,22 @@ export default function CreateGameScreen() {
         }}
       />
       <View className="flex-col items-center gap-2 w-full">
-        <Input placeholder="Game name" value={name} onChangeText={setName} className="w-full" />
-        <Input
-          placeholder="Game code"
-          value={gameCode}
-          onChangeText={setGameCode}
-          className="w-full"
-          autoCapitalize="none"
-        />
-        <Button onPress={createGame} disabled={loading} className="w-full mt-2">
-          <Text className="font-medium">{loading ? "Creating..." : "Create"}</Text>
+        <View className="w-full flex flex-col gap-1">
+          <Text className="font-semibold ml-1">Game Name</Text>
+          <Input placeholder="Game name" value={name} onChangeText={setName} className="w-full" />
+        </View>
+        <View className="w-full flex flex-col gap-1">
+          <Text className="font-semibold ml-1">Game Code</Text>
+          <Input
+            placeholder="Enter game code"
+            value={gameCode}
+            onChangeText={setGameCode}
+            className="w-full"
+            autoCapitalize="none"
+          />
+        </View>
+        <Button onPress={createGame} disabled={loading} className="w-full mt-4" size="lg">
+          <Text className="font-semibold text-base">{loading ? "Creating..." : "Create"}</Text>
         </Button>
       </View>
     </View>

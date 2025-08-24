@@ -1,4 +1,3 @@
-import LocationUpdater from "@/lib/location-updater";
 import "../global.css";
 
 import { SessionProvider, useSession } from "@/lib/auth-context";
@@ -57,7 +56,6 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
           <RootNavigator />
-          <LocationUpdater />
           <PortalHost />
         </QueryClientProvider>
       </SessionProvider>
