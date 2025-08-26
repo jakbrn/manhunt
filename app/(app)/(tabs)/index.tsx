@@ -28,6 +28,7 @@ export default function GamesScreen() {
         {games?.map((game) => (
           <GameEntry key={game.id} game={game} />
         ))}
+        {games?.length === 0 && <Text className="text-center text-muted-foreground">No games found.</Text>}
       </View>
     </View>
   );

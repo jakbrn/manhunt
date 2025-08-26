@@ -32,6 +32,7 @@ export default function useGames() {
 
   return useQuery({
     queryKey: ["games"],
+    staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async () => {
       const { data } = await supabase.from("games").select("*");
       return data || [];

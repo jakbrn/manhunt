@@ -35,19 +35,22 @@ export default function GameScreen() {
 
   function calculateInitialRegion(): Region | undefined {
     if (!players || players.filter((p) => p.position).length === 0) return undefined;
+    const playersWithPosition = players.filter((p) => p.position);
 
     const latitude =
-      players.reduce((sum, p) => sum + ((p.position as Location.LocationObject)?.coords.latitude || 0), 0) /
-      players.length;
+      playersWithPosition.reduce((sum, p) => sum + ((p.position as Location.LocationObject)?.coords.latitude || 0), 0) /
+      playersWithPosition.length;
     const longitude =
-      players.reduce((sum, p) => sum + ((p.position as Location.LocationObject)?.coords.longitude || 0), 0) /
-      players.length;
+      playersWithPosition.reduce(
+        (sum, p) => sum + ((p.position as Location.LocationObject)?.coords.longitude || 0),
+        0
+      ) / playersWithPosition.length;
 
     return {
       latitude,
       longitude,
-      latitudeDelta: 0.01 * players.length,
-      longitudeDelta: 0.01 * players.length,
+      latitudeDelta: 0.01 * playersWithPosition.length,
+      longitudeDelta: 0.01 * playersWithPosition.length,
     };
   }
 

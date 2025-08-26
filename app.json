@@ -8,11 +8,13 @@
     "scheme": "manhunt",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "jsEngine": "hermes",
     "ios": {
       "bundleIdentifier": "com.jakbrn.manhunt",
       "supportsTablet": true,
       "config": {
-        "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY"
+        "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY",
+        "usesNonExemptEncryption": false
       }
     },
     "android": {

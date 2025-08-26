@@ -27,6 +27,7 @@ export default function useGame(gameId: number) {
 
   return useQuery({
     queryKey: ["game", gameId],
+    staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async () => {
       const { data } = await supabase.from("games").select("*").eq("id", gameId).single();
       return data;

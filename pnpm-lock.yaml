@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@babel/plugin-transform-react-jsx':
+        specifier: ^7.27.1
+        version: 7.27.1(@babel/core@7.28.0)
       '@expo/config':
         specifier: ^11.0.13
         version: 11.0.13
@@ -53,6 +56,9 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.83.0
         version: 5.83.0(react@19.0.0)
+      babel-preset-expo:
+        specifier: ^13.2.3
+        version: 13.2.3(@babel/core@7.28.0)
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1

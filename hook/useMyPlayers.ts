@@ -14,7 +14,7 @@ export default function useMyPlayers() {
   useEffect(() => {
     if (!session) return;
 
-    const channelName = `players-${session.user.id}-${Date.now()}`;
+    const channelName = `my-players-${session.user.id}-${Date.now()}`;
     const channel = supabase.channel(channelName);
 
     channel.on("postgres_changes", { event: "INSERT", schema: "public", table: "players" }, () => invalidatePlayers());
@@ -30,6 +30,7 @@ export default function useMyPlayers() {
 
   return useQuery({
     queryKey: ["players", session?.user.id],
+    staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async () => {
       if (!session) return [];
       const { data } = await supabase.from("players").select("*").eq("user_id", session.user.id);

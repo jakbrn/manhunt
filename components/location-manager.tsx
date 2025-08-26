@@ -19,6 +19,7 @@ if (!TaskManager.isTaskDefined("location-updater")) {
   TaskManager.defineTask<{ locations: Location.LocationObject[] }>(
     "location-updater",
     async ({ data: { locations }, error }) => {
+      console.log("Location task triggered");
       if (error) {
         console.error("Location task error:", error);
         return;
@@ -26,24 +27,24 @@ if (!TaskManager.isTaskDefined("location-updater")) {
 
       const { data: session } = await supabase.auth.getSession();
       const user = session?.session?.user;
-      if (!user) return;
+      if (!user) return console.error("User not found");
 
       const players = await supabase
         .from("players")
         .select("game_id, position")
         .eq("user_id", user.id)
         .then((res) => res.data);
-      if (!players) return;
+      if (!players) return console.error("Players not found");
 
       const gamesIds = players.map((player) => player.game_id);
-      if (!gamesIds) return;
+      if (!gamesIds) return console.error("Games IDs not found");
 
       const games = await supabase
         .from("games")
         .select("id, frequency")
         .in("id", gamesIds)
         .then((res) => res.data);
-      if (!games) return;
+      if (!games) return console.error("Games not found");
 
       for (const player of players) {
         const game = games.find((game) => game.id === player.game_id);

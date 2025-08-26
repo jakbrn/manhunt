@@ -30,6 +30,7 @@ export default function usePlayers(gameId: number) {
 
   return useQuery({
     queryKey: ["players", gameId],
+    staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async () => {
       const { data } = await supabase.from("players").select("*").eq("game_id", gameId);
       return data || [];
