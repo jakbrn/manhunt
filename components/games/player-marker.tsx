@@ -32,11 +32,11 @@ export default function PlayerMarker({
     >
       <View
         className={cn(
-          "p-1 rounded-full aspect-square items-center justify-center border",
-          player.role === "hunter" ? "bg-red-500 border-red-300" : "bg-green-500 border-green-300"
+          "p-0.5 rounded-full aspect-square items-center justify-center border-2",
+          player.role === "hunter" ? "bg-red-500 border-red-600" : "bg-green-500 border-green-600"
         )}
       >
-        <Text className="text-white font-bold text-sm">{player.name.slice(0, 1).toUpperCase()}</Text>
+        <Text className="text-white font-bold text-xs">{player.name.slice(0, 1).toUpperCase()}</Text>
       </View>
     </Marker>
   );

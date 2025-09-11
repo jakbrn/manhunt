@@ -1,29 +1,35 @@
-import { Tables } from "@/database.types";
+import { Database, Tables } from "@/database.types";
 import useGame from "@/hook/useGame";
 import { useSession } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
 import { ArrowLeftRightIcon, LocateIcon, TrashIcon } from "lucide-nativewind";
+import { useState } from "react";
 import { View } from "react-native";
 import MapView from "react-native-maps";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "../ui/context-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Text } from "../ui/text";
+import RoleBadge from "./role";
 
 export default function PlayerEntry({
   player,
   mapView,
+  as,
 }: {
   player: Tables<"players">;
   mapView: React.RefObject<MapView | null>;
+  as: Database["public"]["Enums"]["role"];
 }) {
   const { session } = useSession();
   const { gameId } = useLocalSearchParams<{ gameId: string }>();
   const { data: game } = useGame(parseInt(gameId));
+  const [dialog, setDialog] = useState(false);
 
   const isOwner = session?.user.id === game?.owner;
+  const canLocate = player.position && (player.role === as || as !== "runner");
 
   async function swapFunction() {
     if (!session) return;
@@ -34,6 +40,7 @@ export default function PlayerEntry({
 
   async function deletePlayer() {
     if (!session) return;
+    setDialog(false);
     const { error } = await supabase.from("players").delete().eq("id", player.id);
     if (error) {
       console.error("Error deleting player:", error);
@@ -42,6 +49,7 @@ export default function PlayerEntry({
   }
 
   function animateToPlayer() {
+    setDialog(false);
     const position = player.position as Location.LocationObject;
     if (position && mapView?.current) {
       mapView.current.animateToRegion({
@@ -53,50 +61,49 @@ export default function PlayerEntry({
     }
   }
 
-  function Inner() {
-    return (
-      <View className="flex-row items-center gap-3 w-full p-4 bg-secondary rounded-lg">
-        <Text className="font-bold text-lg">{player.name}</Text>
-        {player.role === "hunter" ? (
-          <Badge className="bg-red-500">
-            <Text className="text-white">Hunter</Text>
-          </Badge>
-        ) : (
-          <Badge className="bg-green-500">
-            <Text className="text-white">Runner</Text>
-          </Badge>
-        )}
-        {player.user_id === session?.user.id && (
-          <Badge className="bg-blue-500">
-            <Text className="text-white">You</Text>
-          </Badge>
-        )}
-        {player.position && (
-          <Button variant="ghost" size="icon" onPress={() => animateToPlayer()} className="ml-auto">
-            <LocateIcon size={18} className="text-primary" />
-          </Button>
-        )}
-      </View>
-    );
-  }
-
-  if (!isOwner) return <Inner />;
-
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <Inner />
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onPress={() => swapFunction()}>
-          <ArrowLeftRightIcon size={18} className="text-primary" />
-          <Text className="text-base">Swap Role</Text>
-        </ContextMenuItem>
-        <ContextMenuItem onPress={() => deletePlayer()}>
-          <TrashIcon size={18} className="text-red-500" />
-          <Text className="text-base">Delete Player</Text>
-        </ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+    <Dialog open={dialog} onOpenChange={setDialog}>
+      <DialogTrigger>
+        <View className="flex-row items-center gap-3 w-full p-4 bg-secondary rounded-lg">
+          <Text className="font-bold text-lg">{player.name}</Text>
+          <RoleBadge role={player.role} />
+          {player.user_id === session?.user.id && (
+            <Badge className="bg-blue-500">
+              <Text className="text-white">You</Text>
+            </Badge>
+          )}
+        </View>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader className="flex-row items-center gap-3">
+          <DialogTitle>{player.name}</DialogTitle>
+          <RoleBadge role={player.role} />
+        </DialogHeader>
+        {isOwner ||
+          (canLocate && (
+            <Button variant="outline" className="w-full" onPress={() => animateToPlayer()}>
+              <LocateIcon size={16} className="text-primary" />
+              <Text className="text-base">Locate</Text>
+            </Button>
+          ))}
+        {isOwner && (
+          <>
+            <Button className="w-full" onPress={() => swapFunction()}>
+              <ArrowLeftRightIcon size={16} className="text-primary-foreground" />
+              <Text className="text-base">Swap Role</Text>
+            </Button>
+            <Button variant="destructive" className="w-full" onPress={() => deletePlayer()}>
+              <TrashIcon size={16} className="text-white" />
+              <Text className="text-base">Delete Player</Text>
+            </Button>
+          </>
+        )}
+        {!isOwner && !canLocate && (
+          <Text className="text-center text-sm text-muted-foreground mt-2 w-lg">
+            You cannot locate this player because they are a hunter and you are a runner.
+          </Text>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
