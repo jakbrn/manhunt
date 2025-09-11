@@ -14,11 +14,10 @@ export default function useGame(gameId: number) {
   useEffect(() => {
     if (!session) return;
 
-    const channelName = `game-${gameId}-${session.user.id}-${Date.now()}`;
+    const channelName = `game-${gameId}`;
     const channel = supabase.channel(channelName);
 
-    channel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "games" }, () => invalidateGame());
-    channel.subscribe();
+    channel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "games" }, () => invalidateGame()).subscribe();
 
     return () => {
       supabase.removeChannel(channel);

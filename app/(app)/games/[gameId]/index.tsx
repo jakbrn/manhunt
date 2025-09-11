@@ -13,7 +13,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronUpIcon, LocateIcon } from "lucide-nativewind";
 import { useEffect, useRef, useState } from "react";
 import { FlatList, SafeAreaView, StatusBar, View } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Region } from "react-native-maps";
+import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
 
 export default function GameScreen() {
   const { session } = useSession();
@@ -33,25 +33,19 @@ export default function GameScreen() {
 
   const me = players?.find((player) => player.user_id === session?.user.id);
 
-  function calculateInitialRegion(): Region | undefined {
-    if (!players || players.filter((p) => p.position).length === 0) return undefined;
+  function fitToMarkers(animated = true) {
+    if (!players || players.filter((p) => p.position).length === 0) return;
     const playersWithPosition = players.filter((p) => p.position);
-
-    const latitude =
-      playersWithPosition.reduce((sum, p) => sum + ((p.position as Location.LocationObject)?.coords.latitude || 0), 0) /
-      playersWithPosition.length;
-    const longitude =
-      playersWithPosition.reduce(
-        (sum, p) => sum + ((p.position as Location.LocationObject)?.coords.longitude || 0),
-        0
-      ) / playersWithPosition.length;
-
-    return {
-      latitude,
-      longitude,
-      latitudeDelta: 0.01 * playersWithPosition.length,
-      longitudeDelta: 0.01 * playersWithPosition.length,
-    };
+    mapView.current?.fitToCoordinates(
+      playersWithPosition.map((p) => ({
+        latitude: (p.position as Location.LocationObject)?.coords.latitude || 0,
+        longitude: (p.position as Location.LocationObject)?.coords.longitude || 0,
+      })),
+      {
+        edgePadding: { top: 100, right: 100, bottom: 100, left: 100 },
+        animated,
+      }
+    );
   }
 
   return (
@@ -66,7 +60,7 @@ export default function GameScreen() {
         <MapView
           provider={PROVIDER_GOOGLE}
           ref={mapView}
-          initialRegion={calculateInitialRegion()}
+          onMapReady={() => fitToMarkers(false)}
           showsCompass
           showsUserLocation
           style={{
@@ -88,10 +82,7 @@ export default function GameScreen() {
               variant="secondary"
               className="aspect-square rounded-full h-14 shadow"
               onPress={() => {
-                const region = calculateInitialRegion();
-                if (region) {
-                  mapView.current?.animateToRegion(region);
-                }
+                fitToMarkers();
               }}
             >
               <LocateIcon size={24} className="text-primary" />
@@ -113,7 +104,7 @@ export default function GameScreen() {
         </SafeAreaView>
       </View>
       {drawer && (
-        <View className={cn("w-full h-1/2 p-4 px-1 gap-3 bg-background", tab === "details" && "flex-1")}>
+        <View className={cn("w-full h-1/2 p-3 px-2 gap-3 bg-background", tab === "details" && "flex-1")}>
           <Tabs value={tab} onValueChange={setTab} className="w-full h-full">
             <TabsList className="w-full h-12">
               <TabsTrigger value="players" className="flex-1 h-full">

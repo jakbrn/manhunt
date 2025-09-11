@@ -8,20 +8,18 @@ export default function useMyPlayers() {
   const { session } = useSession();
 
   function invalidatePlayers() {
-    queryClient.invalidateQueries({ queryKey: ["players", session?.user.id] });
+    queryClient.invalidateQueries({ queryKey: ["my-players"] });
   }
 
   useEffect(() => {
     if (!session) return;
 
-    const channelName = `my-players-${session.user.id}-${Date.now()}`;
+    const channelName = `my-players-${session.user.id}`;
     const channel = supabase.channel(channelName);
 
-    channel.on("postgres_changes", { event: "INSERT", schema: "public", table: "players" }, () => invalidatePlayers());
-    channel.on("postgres_changes", { event: "DELETE", schema: "public", table: "players" }, () => invalidatePlayers());
-    channel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "players" }, () => invalidatePlayers());
+    invalidatePlayers();
 
-    channel.subscribe();
+    channel.on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => invalidatePlayers()).subscribe();
 
     return () => {
       supabase.removeChannel(channel);
@@ -29,7 +27,7 @@ export default function useMyPlayers() {
   }, [session]);
 
   return useQuery({
-    queryKey: ["players", session?.user.id],
+    queryKey: ["my-players"],
     staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async () => {
       if (!session) return [];

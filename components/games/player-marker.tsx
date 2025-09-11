@@ -2,7 +2,7 @@ import { Database, Tables } from "@/database.types";
 import { useSession } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import * as Location from "expo-location";
-import { View } from "lucide-react-native";
+import { View } from "react-native";
 import { Marker } from "react-native-maps";
 import { Text } from "../ui/text";
 
@@ -36,7 +36,7 @@ export default function PlayerMarker({
           player.role === "hunter" ? "bg-red-500 border-red-300" : "bg-green-500 border-green-300"
         )}
       >
-        <Text className="text-lg text-white font-bold">{player.name.slice(0, 1).toUpperCase()}</Text>
+        <Text className="text-white font-bold text-sm">{player.name.slice(0, 1).toUpperCase()}</Text>
       </View>
     </Marker>
   );

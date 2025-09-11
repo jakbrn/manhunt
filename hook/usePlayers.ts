@@ -14,19 +14,17 @@ export default function usePlayers(gameId: number) {
   useEffect(() => {
     if (!session) return;
 
-    const channelName = `players-${session.user.id}-${Date.now()}`;
+    const channelName = `players-${gameId}`;
     const channel = supabase.channel(channelName);
 
-    channel.on("postgres_changes", { event: "INSERT", schema: "public", table: "players" }, () => invalidatePlayers());
-    channel.on("postgres_changes", { event: "DELETE", schema: "public", table: "players" }, () => invalidatePlayers());
-    channel.on("postgres_changes", { event: "UPDATE", schema: "public", table: "players" }, () => invalidatePlayers());
-
-    channel.subscribe();
+    channel.on("postgres_changes", { event: "*", schema: "public", table: "players" }, () => {
+      invalidatePlayers();
+    }).subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [session]);
+  }, [session, supabase, gameId]);
 
   return useQuery({
     queryKey: ["players", gameId],
