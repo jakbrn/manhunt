@@ -2,15 +2,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
 import { supabase } from "@/lib/supabase";
-import { router, Stack } from "expo-router";
+import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ChevronLeftIcon } from "lucide-nativewind";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Alert, SafeAreaView, View } from "react-native";
 
 export default function JoinGameScreen() {
   const [gameCode, setGameCode] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { gameCode: prefilledGameCode } = useLocalSearchParams<{ gameCode?: string }>();
+
+  useEffect(() => {
+    if (prefilledGameCode?.trim()) {
+      setGameCode(prefilledGameCode);
+    }
+  }, [prefilledGameCode]);
 
   async function joinGame() {
     if (!gameCode.trim() || !name.trim()) {
@@ -28,7 +35,7 @@ export default function JoinGameScreen() {
         Alert.alert("Error joining game", error.message);
       } else {
         console.log("Joined game:", data);
-        router.replace(`/\(app\)/games/${data.game.id}`); // Assuming data contains the game ID
+        router.dismissTo(`/\(app\)/games/${data.game.id}`);
       }
     } catch (error) {
       Alert.alert("Error", "An unexpected error occurred while joining the game.");
@@ -64,6 +71,7 @@ export default function JoinGameScreen() {
             onChangeText={setGameCode}
             className="w-full"
             autoCapitalize="none"
+            editable={!prefilledGameCode}
           />
         </View>
         <View className="w-full flex flex-col gap-1">

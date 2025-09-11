@@ -21,7 +21,7 @@ export default function PlayerEntry({
 }: {
   player: Tables<"players">;
   mapView: React.RefObject<MapView | null>;
-  as: Database["public"]["Enums"]["role"];
+  as?: Database["public"]["Enums"]["role"];
 }) {
   const { session } = useSession();
   const { gameId } = useLocalSearchParams<{ gameId: string }>();
@@ -29,7 +29,7 @@ export default function PlayerEntry({
   const [dialog, setDialog] = useState(false);
 
   const isOwner = session?.user.id === game?.owner;
-  const canLocate = player.position && (player.role === as || as !== "runner");
+  const canLocate = isOwner || (player.position && (player.role === as || as !== "runner"));
 
   async function swapFunction() {
     if (!session) return;
@@ -79,13 +79,12 @@ export default function PlayerEntry({
           <DialogTitle>{player.name}</DialogTitle>
           <RoleBadge role={player.role} />
         </DialogHeader>
-        {isOwner ||
-          (canLocate && (
-            <Button variant="outline" className="w-full" onPress={() => animateToPlayer()}>
-              <LocateIcon size={16} className="text-primary" />
-              <Text className="text-base">Locate</Text>
-            </Button>
-          ))}
+        {canLocate && (
+          <Button variant="outline" className="w-full" onPress={() => animateToPlayer()}>
+            <LocateIcon size={16} className="text-primary" />
+            <Text className="text-base">Locate</Text>
+          </Button>
+        )}
         {isOwner && (
           <>
             <Button className="w-full" onPress={() => swapFunction()}>
@@ -98,11 +97,17 @@ export default function PlayerEntry({
             </Button>
           </>
         )}
-        {!isOwner && !canLocate && (
+        {!canLocate && (
           <Text className="text-center text-sm text-muted-foreground mt-2 w-lg">
             You cannot locate this player because they are a hunter and you are a runner.
           </Text>
         )}
+        <View className="flex-row items-center gap-1 justify-center">
+          <Text className="text-xs">Last location update:</Text>
+          <Text className="text-xs">
+            {new Date((player.position as Location.LocationObject)?.timestamp || 0).toLocaleString()}
+          </Text>
+        </View>
       </DialogContent>
     </Dialog>
   );

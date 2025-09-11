@@ -85,12 +85,13 @@ export default function GameDetails() {
   async function leaveGame() {
     if (!session) return;
     await supabase.from("players").delete().eq("user_id", session.user.id).eq("game_id", parseInt(gameId));
+    if (isOwner) return;
     router.dismissTo("/(app)/(tabs)");
   }
 
   async function joinGame() {
     if (!session) return;
-    router.push(`/(app)/join`);
+    router.push(`/(app)/join?gameCode=${game?.code || ""}`);
   }
 
   async function deleteGame() {

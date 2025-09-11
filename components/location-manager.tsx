@@ -83,7 +83,7 @@ export default function LocationManager() {
 
     Location.startLocationUpdatesAsync("location-updater", {
       accuracy: Location.Accuracy.High,
-      distanceInterval: 10,
+      timeInterval: 60000,
       showsBackgroundLocationIndicator: true,
     });
 

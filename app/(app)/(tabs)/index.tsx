@@ -16,7 +16,9 @@ export default function GamesScreen() {
             return (
               <SafeAreaView>
                 <View className="flex-row items-center gap-2 pt-2 px-4 pl-6">
-                  <Text className="text-2xl font-semibold flex-1">Games</Text>
+                  <View className="h-10 flex-1 justify-center">
+                    <Text className="text-2xl font-semibold">Games</Text>
+                  </View>
                   <AddGameButton />
                 </View>
               </SafeAreaView>

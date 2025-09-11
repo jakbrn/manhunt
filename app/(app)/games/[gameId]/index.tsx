@@ -103,7 +103,7 @@ export default function GameScreen() {
           </Button>
         </SafeAreaView>
       </View>
-      {drawer && me && (
+      {drawer && (
         <View className={cn("w-full h-1/2 p-3 px-2 gap-3 bg-background", tab === "details" && "flex-1")}>
           <Tabs value={tab} onValueChange={setTab} className="w-full h-full">
             <TabsList className="w-full h-12">
@@ -121,7 +121,7 @@ export default function GameScreen() {
                   .sort((a) => (a.user_id === session?.user.id ? -1 : 1))
                   .sort((a, b) => (a.role === b.role ? -1 : 1))}
                 keyExtractor={(item, index) => `${item.id}-${index}`}
-                renderItem={({ item }) => <PlayerEntry player={item} mapView={mapView} as={me.role} />}
+                renderItem={({ item }) => <PlayerEntry player={item} mapView={mapView} as={me?.role} />}
                 ListEmptyComponent={
                   <Text className="text-muted-foreground text-center text-xl font-semibold py-6">No players yet.</Text>
                 }
