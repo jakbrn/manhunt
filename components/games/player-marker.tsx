@@ -1,25 +1,13 @@
-import { Database, Tables } from "@/database.types";
-import { useSession } from "@/lib/auth-context";
+import { Tables } from "@/database.types";
 import { cn } from "@/lib/utils";
 import * as Location from "expo-location";
 import { View } from "react-native";
 import { Marker } from "react-native-maps";
 import { Text } from "../ui/text";
 
-export default function PlayerMarker({
-  as,
-  player,
-}: {
-  as: Database["public"]["Enums"]["role"];
-  player: Tables<"players">;
-}) {
-  const { session } = useSession();
+export default function PlayerMarker({ player }: { player: Tables<"players"> }) {
   const position = player.position as Location.LocationObject;
-
   if (!position) return null;
-
-  if (player.user_id === session?.user.id) return null;
-  if (as === "runner" && player.role === "hunter") return null;
 
   return (
     <Marker

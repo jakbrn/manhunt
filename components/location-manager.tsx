@@ -92,6 +92,9 @@ export default function LocationManager() {
     };
   }, [myPlayers, session, haveLocationPermissions]);
 
+  if (!session) return null;
+  if (!myPlayers || myPlayers.length === 0) return null;
+
   return (
     <AlertDialog open={!haveLocationPermissions}>
       <AlertDialogContent>

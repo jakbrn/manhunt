@@ -1,3 +1,4 @@
+import LocationManager from "@/components/location-manager";
 import "../global.css";
 
 import { SessionProvider, useSession } from "@/lib/auth-context";
@@ -57,6 +58,7 @@ export default function RootLayout() {
           <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
           <RootNavigator />
           <PortalHost />
+          <LocationManager />
         </QueryClientProvider>
       </SessionProvider>
     </ThemeProvider>

@@ -24,20 +24,22 @@ export default function GameScreen() {
   const [drawer, setDrawer] = useState(false);
   const [tab, setTab] = useState("players");
 
+  const isOwner = session?.user.id === game?.owner;
+  const me = players?.find((player) => player.user_id === session?.user.id);
+  const visiblePlayers = (
+    isOwner && !me ? players : me && players?.filter((p) => me.role !== "runner" || p.role === me.role)
+  )?.filter((p) => p.position);
+
   useEffect(() => {
     if (playersLoading || gameLoading) return;
-    if (!players?.some((player) => player.user_id === session?.user.id) && game?.owner !== session?.user.id) {
-      router.push(`/(app)/(tabs)`);
-    }
+    if (me || isOwner) return;
+    router.push(`/(app)/(tabs)`);
   }, [players, playersLoading, game, gameLoading, session, router]);
 
-  const me = players?.find((player) => player.user_id === session?.user.id);
-
   function fitToMarkers(animated = true) {
-    if (!players || players.filter((p) => p.position).length === 0) return;
-    const playersWithPosition = players.filter((p) => p.position);
+    if (!visiblePlayers || visiblePlayers.length === 0) return;
     mapView.current?.fitToCoordinates(
-      playersWithPosition.map((p) => ({
+      visiblePlayers.map((p) => ({
         latitude: (p.position as Location.LocationObject)?.coords.latitude || 0,
         longitude: (p.position as Location.LocationObject)?.coords.longitude || 0,
       })),
@@ -71,7 +73,9 @@ export default function GameScreen() {
             bottom: 0,
           }}
         >
-          {players?.map((player) => me && <PlayerMarker key={player.id} as={me.role} player={player} />)}
+          {visiblePlayers?.map(
+            (player) => player.user_id !== session?.user.id && <PlayerMarker key={player.id} player={player} />
+          )}
         </MapView>
         <Button variant="secondary" className="aspect-square rounded-full h-14 shadow" onPress={() => router.back()}>
           <ChevronLeftIcon size={24} className="text-primary" />
