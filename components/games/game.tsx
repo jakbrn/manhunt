@@ -1,5 +1,5 @@
+import { usePlayers } from "@/api/players";
 import { Tables } from "@/database.types";
-import usePlayers from "@/hook/usePlayers";
 import { useSession } from "@/lib/auth-context";
 import { Link } from "expo-router";
 import { UserIcon } from "lucide-nativewind";

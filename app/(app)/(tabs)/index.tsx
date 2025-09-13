@@ -1,7 +1,7 @@
+import { useGames } from "@/api/games";
 import { AddGameButton } from "@/components/games/add-game-button";
 import GameEntry from "@/components/games/game";
 import { Text } from "@/components/ui/text";
-import useGames from "@/hook/useGames";
 import { Tabs } from "expo-router";
 import { SafeAreaView, View } from "react-native";
 

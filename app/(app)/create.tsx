@@ -1,44 +1,29 @@
+import { useCreateGame } from "@/api/games";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import { supabase } from "@/lib/supabase";
 import { router, Stack } from "expo-router";
 import { ChevronLeftIcon } from "lucide-nativewind";
 import { useState } from "react";
 import { Alert, SafeAreaView, View } from "react-native";
 
 export default function CreateGameScreen() {
-  const [gameCode, setGameCode] = useState("");
+  const [code, setCode] = useState("");
   const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
+  const createGame = useCreateGame();
 
-  async function createGame() {
-    if (!gameCode.trim() || !name.trim()) {
+  async function process() {
+    if (!code.trim() || !name.trim()) {
       Alert.alert("Please enter both game code and your name.");
       return;
     }
 
-    setLoading(true);
-
     try {
-      const { data, error } = await supabase
-        .from("games")
-        .insert({
-          name,
-          code: gameCode,
-        })
-        .select()
-        .single();
-      if (error) {
-        Alert.alert("Error creating game", error.message);
-      } else if (data) {
-        console.log("Game created:", data);
-        router.replace(`/\(app\)/games/${data.id}`);
-      }
+      const data = await createGame.mutateAsync({ name, code });
+      router.replace(`/\(app\)/games/${data.id}`);
     } catch (error) {
+      console.error("Error creating game:", error);
       Alert.alert("Error", "An unexpected error occurred while joining the game.");
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -69,14 +54,14 @@ export default function CreateGameScreen() {
           <Text className="font-semibold ml-1">Game Code</Text>
           <Input
             placeholder="Enter game code"
-            value={gameCode}
-            onChangeText={setGameCode}
+            value={code}
+            onChangeText={setCode}
             className="w-full"
             autoCapitalize="none"
           />
         </View>
-        <Button onPress={createGame} disabled={loading} className="w-full mt-4" size="lg">
-          <Text className="font-semibold text-base">{loading ? "Creating..." : "Create"}</Text>
+        <Button onPress={process} disabled={createGame.isPending} className="w-full mt-4" size="lg">
+          <Text className="font-semibold text-base">{createGame.isPending ? "Creating..." : "Create"}</Text>
         </Button>
       </View>
     </View>

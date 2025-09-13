@@ -1,11 +1,11 @@
+import { useGame } from "@/api/games";
+import { usePlayers } from "@/api/players";
 import GameDetails from "@/components/games/details";
 import PlayerEntry from "@/components/games/player";
 import PlayerMarker from "@/components/games/player-marker";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
-import useGame from "@/hook/useGame";
-import usePlayers from "@/hook/usePlayers";
 import { useSession } from "@/lib/auth-context";
 import { cn } from "@/lib/utils";
 import * as Location from "expo-location";

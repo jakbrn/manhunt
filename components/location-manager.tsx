@@ -1,3 +1,4 @@
+import { useOwnPlayers } from "@/api/players";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -7,7 +8,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import useMyPlayers from "@/hook/useMyPlayers";
 import { useSession } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import * as Location from "expo-location";
@@ -65,6 +65,7 @@ if (!TaskManager.isTaskDefined("location-updater")) {
             })
             .eq("user_id", user.id)
             .eq("game_id", game.id);
+          await supabase.channel(`games:${game.id}:players`).send({ type: "broadcast", event: "update", payload: {} });
         }
       }
     }
@@ -73,27 +74,27 @@ if (!TaskManager.isTaskDefined("location-updater")) {
 
 export default function LocationManager() {
   const { session } = useSession();
-  const { data: myPlayers } = useMyPlayers();
+  const { data: ownPlayers } = useOwnPlayers();
   const [foregroundLocationStatus, requestForegroundLocationPermission] = Location.useForegroundPermissions();
   const [backgroundLocationStatus, requestBackgroundLocationPermission] = Location.useBackgroundPermissions();
   const haveLocationPermissions = foregroundLocationStatus?.granted && backgroundLocationStatus?.granted;
 
   useEffect(() => {
-    if (!session || !myPlayers || myPlayers.length === 0 || !haveLocationPermissions) return;
+    console.log("Reloading location manager", { ownPlayers, haveLocationPermissions });
+    if (!session || !ownPlayers || ownPlayers.length === 0 || !haveLocationPermissions) return;
 
     Location.startLocationUpdatesAsync("location-updater", {
       accuracy: Location.Accuracy.High,
-      timeInterval: 60000,
       showsBackgroundLocationIndicator: true,
     });
 
     return () => {
       Location.stopLocationUpdatesAsync("location-updater");
     };
-  }, [myPlayers, session, haveLocationPermissions]);
+  }, [ownPlayers, session, haveLocationPermissions]);
 
   if (!session) return null;
-  if (!myPlayers || myPlayers.length === 0) return null;
+  if (!ownPlayers || ownPlayers.length === 0) return null;
 
   return (
     <AlertDialog open={!haveLocationPermissions}>

@@ -1,7 +1,7 @@
+import { useGame } from "@/api/games";
+import { useDeletePlayer, useSwapPlayerRole } from "@/api/players";
 import { Database, Tables } from "@/database.types";
-import useGame from "@/hook/useGame";
 import { useSession } from "@/lib/auth-context";
-import { supabase } from "@/lib/supabase";
 import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
 import { ArrowLeftRightIcon, LocateIcon, TrashIcon } from "lucide-nativewind";
@@ -27,25 +27,22 @@ export default function PlayerEntry({
   const { gameId } = useLocalSearchParams<{ gameId: string }>();
   const { data: game } = useGame(parseInt(gameId));
   const [dialog, setDialog] = useState(false);
+  const swapPlayerRole = useSwapPlayerRole();
+  const deletePlayer = useDeletePlayer();
 
   const isOwner = session?.user.id === game?.owner;
   const canLocate = isOwner || (player.position && (player.role === as || as !== "runner"));
 
-  async function swapFunction() {
+  async function swapRoleProcess() {
     if (!session) return;
-
     const newRole = player.role === "hunter" ? "runner" : "hunter";
-    await supabase.from("players").update({ role: newRole }).eq("id", player.id);
+    await swapPlayerRole.mutateAsync({ id: player.id, role: newRole });
   }
 
-  async function deletePlayer() {
+  async function deleteProcess() {
     if (!session) return;
     setDialog(false);
-    const { error } = await supabase.from("players").delete().eq("id", player.id);
-    if (error) {
-      console.error("Error deleting player:", error);
-      return;
-    }
+    await deletePlayer.mutateAsync({ id: player.id });
   }
 
   function animateToPlayer() {
@@ -87,11 +84,11 @@ export default function PlayerEntry({
         )}
         {isOwner && (
           <>
-            <Button className="w-full" onPress={() => swapFunction()}>
+            <Button className="w-full" onPress={() => swapRoleProcess()}>
               <ArrowLeftRightIcon size={16} className="text-primary-foreground" />
               <Text className="text-base">Swap Role</Text>
             </Button>
-            <Button variant="destructive" className="w-full" onPress={() => deletePlayer()}>
+            <Button variant="destructive" className="w-full" onPress={() => deleteProcess()}>
               <TrashIcon size={16} className="text-white" />
               <Text className="text-base">Delete Player</Text>
             </Button>

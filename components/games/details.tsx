@@ -1,10 +1,9 @@
+import { useDeleteGame, useGame, useLeaveGame, useUpdateGame } from "@/api/games";
+import { usePlayers } from "@/api/players";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Text } from "@/components/ui/text";
-import useGame from "@/hook/useGame";
-import usePlayers from "@/hook/usePlayers";
 import { useSession } from "@/lib/auth-context";
-import { supabase } from "@/lib/supabase";
 import { router, useLocalSearchParams } from "expo-router";
 import { LogInIcon, LogOutIcon, TrashIcon } from "lucide-nativewind";
 import { useCallback, useEffect, useState } from "react";
@@ -35,6 +34,9 @@ export default function GameDetails() {
   const { gameId } = useLocalSearchParams<{ gameId: string }>();
   const { data: players } = usePlayers(parseInt(gameId));
   const { data: game } = useGame(parseInt(gameId));
+  const updateGame = useUpdateGame();
+  const deleteGame = useDeleteGame();
+  const leaveGame = useLeaveGame();
 
   // Local state for debounced inputs
   const [localName, setLocalName] = useState("");
@@ -82,9 +84,9 @@ export default function GameDetails() {
     debouncedUpdateFrequency(frequency);
   };
 
-  async function leaveGame() {
+  async function leaveProcess() {
     if (!session) return;
-    await supabase.from("players").delete().eq("user_id", session.user.id).eq("game_id", parseInt(gameId));
+    await leaveGame.mutateAsync(parseInt(gameId));
     if (isOwner) return;
     router.dismissTo("/(app)/(tabs)");
   }
@@ -94,27 +96,27 @@ export default function GameDetails() {
     router.push(`/(app)/join?gameCode=${game?.code || ""}`);
   }
 
-  async function deleteGame() {
+  async function deleteProcess() {
     if (!session || !isOwner) return;
-    await supabase.from("games").delete().eq("id", parseInt(gameId));
+    await deleteGame.mutateAsync(parseInt(gameId));
     router.dismissTo("/(app)/(tabs)");
   }
 
   async function updateGameName(name: string) {
     if (!session || !isOwner) return;
-    await supabase.from("games").update({ name }).eq("id", parseInt(gameId));
+    await updateGame.mutateAsync({ id: parseInt(gameId), name });
   }
 
   async function updateGameCode(code: string) {
     if (!session || !isOwner) return;
-    await supabase.from("games").update({ code }).eq("id", parseInt(gameId));
+    await updateGame.mutateAsync({ id: parseInt(gameId), code });
   }
 
   async function updateGameFrequency(frequency: string) {
     if (!session || !isOwner) return;
     const numericFrequency = parseInt(frequency);
     if (isNaN(numericFrequency)) return;
-    await supabase.from("games").update({ frequency: numericFrequency }).eq("id", parseInt(gameId));
+    await updateGame.mutateAsync({ id: parseInt(gameId), frequency: numericFrequency });
   }
 
   const isOwner = session?.user.id === game?.owner;
@@ -141,7 +143,7 @@ export default function GameDetails() {
       </View>
       <View className="gap-4 flex-row mt-4">
         {players?.some((player) => player.user_id === session?.user.id) ? (
-          <Button variant="destructive" size="lg" className="flex-1 flex-row gap-2" onPress={() => leaveGame()}>
+          <Button variant="destructive" size="lg" className="flex-1 flex-row gap-2" onPress={() => leaveProcess()}>
             <LogOutIcon size={18} className="text-white" />
             <Text className="text-base">Leave Game</Text>
           </Button>
@@ -169,7 +171,7 @@ export default function GameDetails() {
                 <AlertDialogCancel>
                   <Text>Cancel</Text>
                 </AlertDialogCancel>
-                <AlertDialogAction className="bg-red-800 text-white" onPress={() => deleteGame()}>
+                <AlertDialogAction className="bg-red-800 text-white" onPress={() => deleteProcess()}>
                   <Text>Continue</Text>
                 </AlertDialogAction>
               </AlertDialogFooter>
