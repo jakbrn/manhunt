@@ -13,7 +13,7 @@ import { router, Stack, useLocalSearchParams } from "expo-router";
 import { ChevronDownIcon, ChevronLeftIcon, ChevronUpIcon, LocateIcon } from "lucide-nativewind";
 import { useEffect, useRef, useState } from "react";
 import { FlatList, SafeAreaView, StatusBar, View } from "react-native";
-import MapView, { PROVIDER_GOOGLE } from "react-native-maps";
+import MapView from "react-native-maps";
 
 export default function GameScreen() {
   const { session } = useSession();
@@ -58,13 +58,14 @@ export default function GameScreen() {
         }}
       />
       <StatusBar barStyle="dark-content" />
-      <View className={cn("p-4 pt-safe", (tab !== "details" || !drawer) && "flex-1")}>
+      <View className={cn("p-4 pt-safe android:pt-4 android:mt-safe", (tab !== "details" || !drawer) && "flex-1")}>
         <MapView
-          provider={PROVIDER_GOOGLE}
+          // provider={PROVIDER_GOOGLE}
           ref={mapView}
           onMapReady={() => fitToMarkers(false)}
           showsCompass
           showsUserLocation
+          showsMyLocationButton={false}
           style={{
             position: "absolute",
             top: 0,

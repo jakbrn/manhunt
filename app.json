@@ -2,7 +2,7 @@
   "expo": {
     "name": "ManHunt",
     "slug": "manhunt",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "manhunt",
@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.jakbrn.manhunt",
       "supportsTablet": true,
       "config": {
-        "googleMapsApiKey": "process.env.GOOGLE_MAPS_API_KEY",
+        "googleMapsApiKey": "YOUR_NEW_API_KEY_HERE",
         "usesNonExemptEncryption": false
       }
     },

@@ -15,7 +15,7 @@ export default function GamesScreen() {
           header: () => {
             return (
               <SafeAreaView>
-                <View className="flex-row items-center gap-2 pt-2 px-4 pl-6">
+                <View className="flex-row items-center gap-2 pt-2 px-4 pl-6 android:mt-safe">
                   <View className="h-10 flex-1 justify-center">
                     <Text className="text-2xl font-semibold">Games</Text>
                   </View>

@@ -13,7 +13,7 @@ export default function GameEntry({ game }: { game: Tables<"games"> }) {
 
   return (
     <Link key={game.id} href={`/(app)/games/${game.id}`} className="w-full">
-      <View className="p-4 border-border border rounded-lg shadow-md w-full justify-between gap-1">
+      <View className="p-4 border-border border rounded-lg w-full justify-between gap-1">
         <View className="flex-row items-center gap-2">
           <Text className="text-lg font-semibold flex-1">{game.name}</Text>
           {game.owner === session?.user.id && (

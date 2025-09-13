@@ -40,7 +40,7 @@ export default function JoinGameScreen() {
           header: () => {
             return (
               <SafeAreaView>
-                <View className="flex-row items-center gap-2 pt-2 px-4">
+                <View className="flex-row items-center gap-2 pt-2 px-4 android:mt-safe">
                   <Button variant="ghost" size="icon" onPress={() => router.back()}>
                     <ChevronLeftIcon size={24} className="text-primary" />
                   </Button>
