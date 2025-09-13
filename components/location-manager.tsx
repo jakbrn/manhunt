@@ -19,7 +19,6 @@ if (!TaskManager.isTaskDefined("location-updater")) {
   TaskManager.defineTask<{ locations: Location.LocationObject[] }>(
     "location-updater",
     async ({ data: { locations }, error }) => {
-      console.log("Location task triggered");
       if (error) {
         console.error("Location task error:", error);
         return;
@@ -80,7 +79,6 @@ export default function LocationManager() {
   const haveLocationPermissions = foregroundLocationStatus?.granted && backgroundLocationStatus?.granted;
 
   useEffect(() => {
-    console.log("Reloading location manager", { ownPlayers, haveLocationPermissions });
     if (!session || !ownPlayers || ownPlayers.length === 0 || !haveLocationPermissions) return;
 
     Location.startLocationUpdatesAsync("location-updater", {
